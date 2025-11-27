@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-text-splitters
+langchain-openai
+langchain-groq
+sentence-transformers
+flask
+python-dotenv
+tensorflow
+pypdf
+tf-keras
+pinecone
+langchain-pinecone
