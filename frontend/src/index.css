@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Medical-themed design system - soft, trustworthy, professional */
+    --background: 0 0% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Medical blue - trustworthy and professional */
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 199 89% 95%;
+
+    /* Subtle secondary surfaces */
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 215 25% 15%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 199 70% 92%;
+    --accent-foreground: 199 89% 35%;
+
+    /* Medical alert colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 199 89% 48%;
+
+    --radius: 0.75rem;
+
+    /* Chat bubbles */
+    --chat-user-bg: 199 89% 48%;
+    --chat-user-fg: 0 0% 100%;
+    --chat-bot-bg: 210 20% 96%;
+    --chat-bot-fg: 215 25% 15%;
+
+    /* Gradients for visual appeal */
+    --gradient-primary: linear-gradient(135deg, hsl(199, 89%, 48%), hsl(199, 89%, 58%));
+    --gradient-accent: linear-gradient(135deg, hsl(199, 70%, 92%), hsl(199, 70%, 98%));
+  }
+
+  .dark {
+    --background: 215 28% 12%;
+    --foreground: 210 20% 95%;
+
+    --card: 215 28% 16%;
+    --card-foreground: 210 20% 95%;
+
+    --popover: 215 28% 16%;
+    --popover-foreground: 210 20% 95%;
+
+    --primary: 199 89% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 199 89% 20%;
+
+    --secondary: 215 28% 20%;
+    --secondary-foreground: 210 20% 95%;
+
+    --muted: 215 28% 20%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 199 50% 25%;
+    --accent-foreground: 199 89% 85%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 215 28% 24%;
+    --input: 215 28% 24%;
+    --ring: 199 89% 55%;
+
+    --chat-user-bg: 199 89% 55%;
+    --chat-user-fg: 0 0% 100%;
+    --chat-bot-bg: 215 28% 20%;
+    --chat-bot-fg: 210 20% 95%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(199, 89%, 55%), hsl(199, 89%, 65%));
+    --gradient-accent: linear-gradient(135deg, hsl(199, 50%, 25%), hsl(199, 50%, 35%));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar for chat */
+  .chat-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .chat-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .chat-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 3px;
+  }
+
+  .chat-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.3);
+  }
+}
