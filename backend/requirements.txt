@@ -1,0 +1,16 @@
+langchain
+langchain-community
+langchain-text-splitters
+langchain-groq
+langchain-pinecone
+sentence-transformers
+flask
+flask-cors
+python-dotenv
+tensorflow
+tf-keras
+pypdf
+pinecone
+pillow
+numpy
+langchain-classic
