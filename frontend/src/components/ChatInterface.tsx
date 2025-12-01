@@ -10,6 +10,7 @@ interface Message {
   role: 'user' | 'bot';
   content: string;
   timestamp: Date;
+  isThinking?: boolean; // Show inline "Thinking..." bubble while waiting for LLM response
 }
 
 // ChatInterface component
@@ -27,9 +28,22 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Add refs to control scrolling to specific messages
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingScrollToMessageId = useRef<string | null>(null);
+
+  // Scroll to the start of the target message when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (pendingScrollToMessageId.current) {
+      const container = messagesContainerRef.current;
+      const targetEl = messageRefs.current[pendingScrollToMessageId.current];
+      if (container && targetEl) {
+        const top = targetEl.offsetTop - container.offsetTop;
+        container.scrollTo({ top, behavior: 'smooth' });
+      }
+      pendingScrollToMessageId.current = null;
+    }
   }, [messages]);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
@@ -44,7 +58,20 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    // Ensure we scroll to the start of the new user query bubble
+    pendingScrollToMessageId.current = userMessage.id;
+
+    // Add user message and inline "Thinking..." placeholder
+    const thinkingId = `thinking-${Date.now()}`;
+    const thinkingMessage: Message = {
+      id: thinkingId,
+      role: 'bot',
+      content: 'Thinking...',
+      timestamp: new Date(),
+      isThinking: true,
+    };
+
+    setMessages(prev => [...prev, userMessage, thinkingMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -54,7 +81,7 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
         headers: {
           'Content-Type': 'application/json',
         },
-        // Include prediction if present so backend can store it in memory
+        // Include prediction context if present
         body: JSON.stringify({ message: userMessage.content, prediction: props.prediction ?? undefined }),
       });
 
@@ -71,22 +98,24 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, botMessage]);
+      // Replace "Thinking..." with the real response
+      setMessages(prev => prev.filter(m => m.id !== thinkingId).concat(botMessage));
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please ensure the backend is running.');
 
-      // Add error message to chat
+      // Replace "Thinking..." with an error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'bot',
-        content: 'I apologize, but I\'m having trouble connecting to the server. Please make sure the backend is running on http://localhost:8000',
+        content: `I apologize, but I'm having trouble connecting to the server. Please make sure the backend is reachable at ${BACKEND_URL}`,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => prev.filter(m => m.id !== thinkingId).concat(errorMessage));
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
+      // Avoid auto-focus to prevent viewport jumping
+      // inputRef.current?.focus();
     }
   };
 
@@ -106,10 +135,14 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 chat-scroll min-h-0">
+      <div
+        ref={messagesContainerRef}
+        className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4 chat-scroll min-h-0"
+      >
         {messages.map((message) => (
           <div
             key={message.id}
+            ref={(el) => { messageRefs.current[message.id] = el; }}
             className={`flex gap-2 md:gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {message.role === 'bot' && (
@@ -118,20 +151,35 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
               </div>
             )}
 
-            <div
-              className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 py-2 md:px-4 md:py-3 ${
-                message.role === 'user'
-                  ? 'bg-chat-user-bg text-chat-user-fg'
-                  : 'bg-chat-bot-bg text-chat-bot-fg'
-              }`}
-            >
-              <p className="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
-              <p className={`text-[10px] md:text-xs mt-1 ${
-                message.role === 'user' ? 'text-chat-user-fg/70' : 'text-muted-foreground'
-              }`}>
-                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </p>
-            </div>
+            {/* Bubble */}
+            {message.isThinking ? (
+              <div
+                className="bg-chat-bot-bg text-chat-bot-fg rounded-2xl px-3 py-2 md:px-4 md:py-3 flex items-center gap-2"
+                role="status"
+                aria-live="polite"
+                aria-label="Assistant is thinking"
+              >
+                <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
+                <span className="text-xs md:text-sm">Thinking...</span>
+              </div>
+            ) : (
+              <div
+                className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 py-2 md:px-4 md:py-3 ${
+                  message.role === 'user'
+                    ? 'bg-chat-user-bg text-chat-user-fg'
+                    : 'bg-chat-bot-bg text-chat-bot-fg'
+                }`}
+              >
+                <p className="text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words">
+                  {message.content}
+                </p>
+                <p className={`text-[10px] md:text-xs mt-1 ${
+                  message.role === 'user' ? 'text-chat-user-fg/70' : 'text-muted-foreground'
+                }`}>
+                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              </div>
+            )}
 
             {message.role === 'user' && (
               <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
@@ -141,23 +189,7 @@ const ChatInterface = (props: { prediction?: { disease: string; confidence: numb
           </div>
         ))}
 
-        {isLoading && (
-          <div className="flex gap-2 md:gap-3 justify-start">
-            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-              <Bot className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
-            </div>
-            <div
-              className="bg-chat-bot-bg text-chat-bot-fg rounded-2xl px-3 py-2 md:px-4 md:py-3 flex items-center gap-2"
-              role="status"
-              aria-live="polite"
-              aria-label="Assistant is thinking"
-            >
-              <Loader2 className="w-3 h-3 md:w-4 md:h-4 animate-spin" />
-              <span className="text-xs md:text-sm">Thinking...</span>
-            </div>
-          </div>
-        )}
-
+        {/* Removed the separate isLoading bubble to avoid duplication */}
         <div ref={messagesEndRef} />
       </div>
 

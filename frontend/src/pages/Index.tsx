@@ -10,6 +10,7 @@ export interface PredictionResult {
   description: string;
 }
 
+// Index component
 const Index = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
@@ -54,7 +55,7 @@ const Index = () => {
       setPrediction({
         disease: 'Error',
         confidence: 0,
-        description: 'Failed to analyze the image. Please ensure the backend is running on http://localhost:8000',
+        description: `Failed to analyze the image. Please ensure the backend is reachable at ${BACKEND_URL}`,
       });
     } finally {
       setIsAnalyzing(false);
