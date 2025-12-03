@@ -71,23 +71,26 @@ This project combines **Computer Vision, LLMs, RAG, and Full-Stack Deployment** 
 
 # 🏗️ Project Architecture
 
-derma-ai/
+├── 📁 backend/
+│   ├── 🧠 app.py                  # Main Flask backend API
+│   ├── 🧩 helper.py               # RAG utilities, embeddings, PDF processing
+│   ├── 💬 prompt.py               # System prompt for medical chatbot
+│   ├── 🧪 derma_mobilenet.keras   # Trained CNN model (Git LFS)
+│   ├── 🐳 Dockerfile              # Docker setup for HuggingFace Spaces
+│   └── 📄 requirements.txt        # Backend dependencies
 │
-├── backend/
-│ ├── app.py # Flask API
-│ ├── helper.py # RAG utilities & embeddings
-│ ├── prompt.py # Chat system prompt
-│ ├── derma_mobilenet.keras # CNN model (Git LFS)
-│ ├── Dockerfile # HF Docker deployment
-│ └── requirements.txt
+├── 🎨 frontend/
+│   ├── 📁 src/                    # React components & UI logic
+│   │   ├── components/            # UI components
+│   │   ├── pages/                 # App pages
+│   │   ├── App.tsx                # Root component
+│   │   └── main.tsx               # Entry point
+│   ├── 📁 public/                 # Static assets
+│   ├── ⚙️ vite.config.ts          # Vite frontend config
+│   └── 📄 package.json            # Frontend dependencies
 │
-├── frontend/
-│ ├── src/ # React components
-│ ├── public/
-│ ├── vite.config.ts
-│ └── package.json
-│
-└── README.md
+└── 📘 README.md                   # Project documentation
+
 
 ---
 
