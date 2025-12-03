@@ -14,11 +14,8 @@ This project combines **Computer Vision, LLMs, RAG, and Full-Stack Deployment** 
 
 ## 🚀 Live Demo
 
-### **Frontend:**  
+### **Live Demo:**  
 🔗 https://derma-ai-assistant.vercel.app/
-
-### **Backend API:**  
-🔗 Hosted on HuggingFace Spaces (Docker)
 
 ### **Demo Video:**  
 🔗 https://drive.google.com/file/d/1LucHtTL0atLx-soF2EGGqBxqAPOxgDFS/view
